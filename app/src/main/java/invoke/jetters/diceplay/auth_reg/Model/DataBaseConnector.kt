@@ -13,24 +13,12 @@ class DataBaseConnector {
     private val writer: OutputStreamWriter
 
     @Throws(IOException::class)
-    fun requestToLogin(user: User?): Single<Boolean> {
+    fun sendRequest(user: User?, requestType: String): Single<Boolean> {
         return Single.create { subscriber ->
-            writer.write(""" login ${user?.login} ${user?.password} """.trimIndent())
+            writer.write(""" $requestType ${user?.login} ${user?.password} """.trimIndent())
             writer.flush()
             subscriber.onSuccess(reader.readLine() == "accept");
         }
-    }
-
-    @Throws(IOException::class)
-    fun requestToRegistration(user: User?): Single<Boolean>  {
-
-        return Single.create { subscriber ->
-            writer.write(""" register ${user?.login} ${user?.password} """.trimIndent())
-            writer.flush()
-
-            subscriber.onSuccess(reader.readLine() == "accept");
-        }
-
     }
 
     init {

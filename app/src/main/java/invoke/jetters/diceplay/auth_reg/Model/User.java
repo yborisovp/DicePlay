@@ -2,17 +2,17 @@ package invoke.jetters.diceplay.auth_reg.Model;
 
 public class User {
     private String login;
-    private int password;
+    private String hashPassword;
     private String userName;
 
-    public User(String login, int password) {
+    public User(String login, String hashPassword) {
         this.login = login;
-        this.password = password;
+        this.hashPassword = hashPassword;
     }
 
-    public User(String login, int password, String userName) {
+    public User(String login, String hashPassword, String userName) {
         this.login = login;
-        this.password = password;
+        this.hashPassword = hashPassword;
         this.userName = userName;
     }
 
@@ -24,11 +24,11 @@ public class User {
         this.login = login;
     }
 
-    public int getPassword() {
-        return password;
+    public String getPassword() {
+        return hashPassword;
     }
 
-    public void setPassword(int password) {
-        this.password = password;
+    public void setPassword(String hashPassword) {
+        this.hashPassword = hashPassword;
     }
 }

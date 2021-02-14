@@ -9,22 +9,23 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 
 import invoke.jetters.diceplay.R;
+import invoke.jetters.diceplay.auth_reg.Model.Hasher;
 import invoke.jetters.diceplay.auth_reg.Model.User;
 import invoke.jetters.diceplay.auth_reg.Presenter.AuthRegPresenter;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.disposables.Disposable;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements IView {
 
     private EditText login;
     private EditText password;
     private TextView wrongPassword;
     private TextView wrongLogin;
     private Button forgotPassword;
-
+    private CompositeDisposable disposeBag;
     private AuthRegPresenter authRegPresenter;
 
     @Override
@@ -41,28 +42,18 @@ public class LoginActivity extends AppCompatActivity {
         Button registration = (Button)findViewById(R.id.sign_up_button);
         forgotPassword = (Button) findViewById(R.id.forgot_password);
 
-        try {
-            authRegPresenter = new AuthRegPresenter();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        authRegPresenter = new AuthRegPresenter(LoginActivity.this);
 
         authorization.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//
-//                try {
-//                    if (!authRegPresenter.sendRequestToLogin(new User(login.getText().toString(), password.getText().toString().hashCode()))) {
-                        showError();
-//                    }
-//                    else {
-//                        Intent intent = new Intent(LoginActivity.this, Dashboard.class);
-//                         startActivity(intent);
-//                    }
-//                   }
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
+                try {
+                    Disposable dispose = authRegPresenter.sendRequestToServer(new User(login.getText().toString(), Hasher.getHash(password.getText().toString())),
+                            "login");
+                    disposeBag.add(dispose);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -75,7 +66,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
-    public void showError() {
+
+
+
+    public void onError() {
         wrongLogin.setVisibility(View.VISIBLE);
         wrongPassword.setVisibility(View.VISIBLE);
         forgotPassword.setVisibility(View.VISIBLE);
@@ -85,6 +79,18 @@ public class LoginActivity extends AppCompatActivity {
         wrongLogin.setVisibility(View.INVISIBLE);
         wrongPassword.setVisibility(View.INVISIBLE);
         forgotPassword.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onSuccess() {
+        //       Intent intent = new Intent(LoginActivity.this, Dashboard.class);
+        //        startActivity(intent);
+    }
+
+    @Override
+    public void onDestroy() {
+        disposeBag.clear();
+        super.onDestroy();
     }
 
 }
